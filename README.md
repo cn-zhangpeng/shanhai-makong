@@ -1,5 +1,8 @@
 # shanhai-makong
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Mirror to Gitee](https://github.com/cn-zhangpeng/shanhai-makong/actions/workflows/mirror.yml/badge.svg)](https://github.com/cn-zhangpeng/shanhai-makong/actions/workflows/mirror.yml)
+
 「码控」：山海系列 · 鸿蒙版会控页面收藏夹。
 
 扫一扫会控页面上的二维码，把地址存成本地名帖，点开直接用内嵌 WebView 打开——不用每次手输网址。
@@ -63,3 +66,28 @@ $env:JAVA_HOME = "D:\Sofwares\Huawei\DevEco Studio\jbr"
 
 - 构建产物、签名证书、本机 IDE 配置、截图目录均已在 `.gitignore` 中排除。
 - 仓库中 `makong-harmony/build-profile.json5` 的签名配置已清空；在 DevEco 中生成自动签名后会写入本机证书路径，提交前请确认没有把本机签名信息带进仓库。
+
+## Gitee 镜像
+
+GitHub 为主仓库，Gitee 只做只读镜像：<https://gitee.com/cn-zhangpeng/shanhai-makong>
+
+同步由 [`.github/workflows/mirror.yml`](.github/workflows/mirror.yml) 负责，触发时机：
+
+- 每次 push 到 `main`；
+- 每天 02:00（北京时间，即 UTC 18:00）定时同步一次；
+- 也可以在 Actions 页面手动 `Run workflow`。
+
+首次启用前，需要在 GitHub 仓库的 `Settings > Secrets and variables > Actions` 里配置三个 Secret：
+
+| Secret | 说明 |
+| --- | --- |
+| `GITEE_USERNAME` | Gitee 用户名（`cn-zhangpeng`） |
+| `GITEE_TOKEN` | Gitee 私人令牌，勾选 `projects` 权限即可 |
+| `GITEE_REPO` | Gitee 仓库路径（`cn-zhangpeng/shanhai-makong`） |
+
+工作流使用 [`wearerequired/git-mirror-action`](https://github.com/wearerequired/git-mirror-action)，会把 GitHub 的提交、分支和标签整体镜像到 Gitee。Gitee 侧的仓库需要提前建好（空仓库即可），不要在 Gitee 上直接改代码，否则下次同步会被覆盖。
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源，Copyright (c) 2026 山海紫穹。
+

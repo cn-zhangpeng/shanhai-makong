@@ -240,3 +240,8 @@ python scripts/gen_icon.py
 ```
 
 界面里的小图标是 Bootstrap Icons 的实心 SVG（`entry/src/main/resources/base/media/ic_*.svg`），统一 `fill="#000000"`，运行时用 `Image.fillColor($r('app.color.…'))` 染色，自动适配浅色 / 深色模式。
+
+## 许可证
+
+[MIT License](../LICENSE)，Copyright (c) 2026 山海紫穹。
+
