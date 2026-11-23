@@ -1,0 +1,24 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "码控：扫码即开的网页会话"
+    },
+    {
+      "name": "ability_desc",
+      "value": "码控主入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "码控"
+    },
+    {
+      "name": "perm_camera",
+      "value": "用于在会控页面中开启摄像头"
+    },
+    {
+      "name": "perm_microphone",
+      "value": "用于在会控页面中开启麦克风"
+    }
+  ]
+}

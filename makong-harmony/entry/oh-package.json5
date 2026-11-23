@@ -1,0 +1,9 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "码控主模块：会话列表、扫码录入与内嵌网页",
+  "main": "",
+  "author": "shanhai",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

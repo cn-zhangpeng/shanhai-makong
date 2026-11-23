@@ -1,0 +1,11 @@
+{
+  "modelVersion": "5.0.0",
+  "name": "makong-harmony",
+  "version": "1.0.0",
+  "description": "码控：扫码即开的网页会话收藏夹",
+  "main": "",
+  "author": "shanhai",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "devDependencies": {}
+}

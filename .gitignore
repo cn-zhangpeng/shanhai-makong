@@ -1,0 +1,44 @@
+# 构建产物
+build/
+**/build/
+*.hap
+*.app
+*.hsp
+*.har
+
+# hvigor / ohpm 缓存
+.hvigor/
+**/.hvigor/
+oh_modules/
+**/oh_modules/
+node_modules/
+**/node_modules/
+
+# 本机 IDE 与 SDK 配置
+.idea/
+**/.idea/
+local.properties
+*.iml
+
+# 签名材料（证书 / 私钥）
+*.p12
+*.cer
+*.p7b
+*.jks
+*.keystore
+
+# 截图与临时文件
+.screenshots/
+**/.screenshots/
+*.log
+.DS_Store
+Thumbs.db
+
+# C/C++ 编译中间产物
+.cxx/
+**/.cxx/
+.clangd
+.clang-format
+.clang-tidy
+.appanalyzer/
+.test/
