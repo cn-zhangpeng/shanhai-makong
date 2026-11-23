@@ -178,23 +178,57 @@ http://192.168.1.8:8080/control
 ## 验证情况
 
 - 已在 DevEco Studio 26.0.0.851（API 26 SDK）下用 hvigor 编译通过：`assembleHap` 成功，签名产物 `entry/build/default/outputs/default/entry-default-signed.hap`。
-- 已通过 `hdc install` 安装到真机（4WM0225212003721）并启动，列表、空态、设置面板、新添 / 修订名帖、内嵌网页（含登录态保持）、错误兜底、长按菜单、纸面确认框均已实测；截图见 `.screenshots/`。
+- 已通过 `hdc install` 安装到真机（4WM0225212003721）并启动，列表、空态、设置面板、新添 / 修订名帖、内嵌网页（含登录态保持）、错误兜底、长按菜单、纸面确认框均已实测，截图见上方「效果图」。
 - 仍待真实会控页确认：内网 http 地址是否被 `-10` 拦截、会控页 WebRTC 的实际表现（见上面的「明文 HTTP」「WebRTC」两节）。
 
-## 截图
+## 效果图
 
-`.screenshots/` 下是真机截图（已加入 `.gitignore`，不随仓库提交）：
+真机实拍（HarmonyOS 5.0.0 手机，1316×2832，已裁掉系统状态栏）：
 
-| 文件 | 内容 |
-| --- | --- |
-| `v5-list.jpeg` | 名帖列表：续卷卡 + 名帖卡 + 底部「山海有信」 |
-| `v5-settings.jpeg` | 设置面板 |
-| `v4-edit.jpeg` | 修订名帖表单 |
-| `v4-webview.jpeg` | 内嵌网页（页头 + WebView） |
-| `v4-menu.jpeg` | 长按名帖菜单 |
-| `v3-dialog.jpeg` | 纸面确认框 |
-| `v3-empty2.jpeg` | 空态（未收卷） |
-| `v2-error.jpeg` | 加载失败兜底 |
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/01-list.jpg" width="260" /><br />
+      <sub>名帖列表：续卷卡 + 名帖卡 + 收尾落款</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/screenshots/02-empty.jpg" width="260" /><br />
+      <sub>空态：山海插画 + 「尚未收卷」</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/03-edit.jpg" width="260" /><br />
+      <sub>新添 / 修订名帖：白卡表单 + 扫一扫</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/04-webview.jpg" width="260" /><br />
+      <sub>内嵌网页：纸色页头 + WebView 打开会控页</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/05-settings.jpg" width="260" /><br />
+      <sub>设置面板：启动自动进入上次名帖</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/06-dialog.jpg" width="260" /><br />
+      <sub>纸面确认框：替掉系统 AlertDialog</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/07-error.jpg" width="260" /><br />
+      <sub>加载失败兜底：错误详情 / 重试 / 浏览器打开</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/08-menu.jpg" width="260" /><br />
+      <sub>长按名帖：修订 / 浏览器打开 / 删除</sub>
+    </td>
+  </tr>
+</table>
+
+图片源文件在 `docs/screenshots/`（由 `scripts/prep_readme_shots.py` 从真机截图裁剪生成）。
 
 
 ## 图标

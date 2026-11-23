@@ -24,7 +24,26 @@
 
 山海系列新中式设计：宣纸暖白 × 墨色 × 朱砂、鎏金点缀。三页结构：名帖列表 → 新添 / 修订名帖 → 内嵌网页。
 
-设计说明、截图与完整构建/安装步骤见 [`makong-harmony/README.md`](makong-harmony/README.md)。
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="makong-harmony/docs/screenshots/01-list.jpg" width="230" /><br />
+      <sub>名帖列表</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="makong-harmony/docs/screenshots/04-webview.jpg" width="230" /><br />
+      <sub>内嵌网页</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="makong-harmony/docs/screenshots/03-edit.jpg" width="230" /><br />
+      <sub>修订名帖</sub>
+    </td>
+  </tr>
+</table>
+
+更多效果图（空态、设置、确认框、错误兜底、长按菜单）见 [`makong-harmony/README.md`](makong-harmony/README.md#效果图)。
+
+设计说明、构建/安装步骤同样在该 README 中。
 
 ## 快速开始
 
