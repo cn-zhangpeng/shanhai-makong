@@ -33,7 +33,7 @@ struct WebViewPage {
     const params = router.getParams() as WebRouteParams
     const item = params !== undefined ? this.store.get(params.id) : undefined
     if (item === undefined) {
-      toast('名帖不存在')
+      toast('这条收藏不存在')
       router.back()
       return
     }
@@ -84,9 +84,13 @@ struct WebViewPage {
   }
 
   private updateTitle(): void {
+    // 加载失败时网页标题常退化成地址本身，这类标题不覆盖收藏名称。
+    if (this.loadFailed) {
+      return
+    }
     try {
       const title = this.controller.getTitle()
-      // 加载失败时网页标题常退化成地址本身，此类标题不覆盖名帖名称。
+      // 加载失败时网页标题常退化成地址本身，此类标题不覆盖收藏名称。
       if (title !== undefined && title.length > 0 && title !== this.targetUrl &&
         title !== UrlUtils.hostOf(this.targetUrl)) {
         this.pageTitle = title
@@ -110,6 +114,11 @@ struct WebViewPage {
     this.loadFailed = true
     this.errorCode = code
     this.errorDetail = detail
+    // 失败页的标题仍然是收藏名，不拿地址顶替。
+    const item = this.session
+    if (item !== undefined) {
+      this.pageTitle = SessionItemFactory.labelOf(item)
+    }
   }
 
   private retry(): void {
@@ -146,7 +155,7 @@ struct WebViewPage {
   private moreMenu(): MenuElement[] {
     return [
       {
-        value: '刷新页面',
+        value: '刷新',
         action: () => {
           this.retry()
         }
@@ -167,14 +176,14 @@ struct WebViewPage {
   }
 
   private errorTitle(): string {
-    return '未能抵达'
+    return '网页打不开'
   }
 
   private errorHint(): string {
     if (this.errorCode === -10) {
-      return '系统拦截了对该地址的访问（-10）。常见原因是明文 http 被安全策略限制，或该地址只允许在电脑本机访问。'
+      return '手机系统拦截了对这个地址的访问（-10）。常见原因是明文 http 被安全策略限制，或这个地址只能在电脑本机打开。'
     }
-    return '请确认手机与电脑在同一网络，且该地址在手机上能打开。若为 http 明文地址，部分系统版本会拦截。'
+    return '请确认手机和电脑在同一网络，并且这个地址在手机上能打开。如果是 http 明文地址，部分系统版本会拦截。'
   }
 
   @Builder
@@ -229,7 +238,7 @@ struct WebViewPage {
         .width(34)
         .height(34)
         .color($r('app.color.brand'))
-      Text('正在前往…')
+      Text('正在加载…')
         .fontSize(12)
         .letterSpacing(2)
         .fontColor($r('app.color.text_secondary'))
@@ -271,7 +280,7 @@ struct WebViewPage {
         .margin({ bottom: 2 })
 
       if (this.errorDetail.length > 0) {
-        Text('详情 ' + this.errorDetail + ' · ' + this.errorCode)
+        Text('错误码 ' + this.errorCode + ' · ' + this.errorDetail)
           .fontSize(10)
           .fontColor($r('app.color.text_tertiary'))
           .textAlign(TextAlign.Center)

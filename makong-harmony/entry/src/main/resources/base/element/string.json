@@ -2,11 +2,11 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "码控：扫码即开的网页会话"
+      "value": "码控：扫码打开会控页面，收藏常用网址"
     },
     {
       "name": "ability_desc",
-      "value": "码控主入口"
+      "value": "码控"
     },
     {
       "name": "EntryAbility_label",

@@ -1,6 +1,6 @@
 # 码控 · makong-harmony
 
-鸿蒙版「会控页面收藏夹」：扫一扫页面上的二维码，把会控地址存成本机会话，点开直接用内嵌 WebView 打开，不需要每次手输网址。
+鸿蒙版「会控页面收藏夹」：扫一扫页面上的二维码，把会控地址存成本地收藏，点开直接用内嵌 WebView 打开，不需要每次手输网址。
 
 - 技术栈：HarmonyOS Stage 模型 + ArkTS + ArkUI，无后端、无三方库。
 - 最低兼容版本：HarmonyOS 5.0.0(12)（`compatibleSdkVersion` / `targetSdkVersion` 均为 `5.0.0(12)`，可用 API 26 SDK 编译）。
@@ -14,24 +14,24 @@
 | --- | --- |
 | 底色 | 宣纸渐变 `#F9F6F0 → #F4EFE4`，页头压一层极淡墨色山脊 |
 | 品牌 | 朱砂圆角方印「码」+ 鎏金小字 `SHANHAI · 码控`，山纹徽记作分隔 |
-| 主色 | 朱砂 `#A83E2C` 只给主操作（扫码入卷、保存名帖、续卷卡），其余保持克制 |
-| 名帖卡 | 白纸卡 + 1px 发丝边 + 大圆角 + 姓名印（首字），名称 / 域名 / 时间三阶墨色 |
-| 名帖列表 | 朱砂竖线小标题「名 帖」，底部一行「山海有信 · 名帖在此」收尾 |
-| 空态 | 鎏金群山 + 朱砂日轮插画，配「尚未收卷」与两句引导 |
-| 续卷卡 | 墨色渐变卡 + 鎏金小字「续 卷」，与白纸卡形成层次 |
+| 主色 | 朱砂 `#A83E2C` 只给主操作（扫码添加、保存、上次打开卡），其余保持克制 |
+| 收藏卡 | 白纸卡 + 1px 发丝边 + 大圆角 + 首字印，名称 / 域名 / 时间三阶墨色 |
+| 收藏列表 | 朱砂竖线小标题「我的收藏」，底部一行「收藏只保存在本机」收尾 |
+| 空态 | 鎏金群山 + 朱砂日轮插画，配「还没有收藏」与两句引导 |
+| 上次打开卡 | 墨色渐变卡 + 鎏金小字「上次打开」，与白纸卡形成层次 |
 | 确认框 | 自绘纸面 `ConfirmDialog`（圆角 24、纸色底、朱砂主按钮），不用系统 AlertDialog |
-| 图标 | 应用图标为宣纸底 + 朱砂方印「码」；界面图标统一实心 SVG，`fillColor` 运行时染色，自动适配深色模式 |
+| 图标 | 应用图标为玄青底 + 鎏金细边 + 居中「码」；界面图标统一实心 SVG，`fillColor` 运行时染色，自动适配深色模式 |
 
-三页结构不变：名帖列表（Index）→ 新添 / 修订（EditPage）→ 内嵌网页（WebViewPage）。
+三页结构不变：收藏列表（Index）→ 添加 / 编辑收藏（EditPage）→ 内嵌网页（WebViewPage）。
 
 ## 功能
 
 | 能力 | 说明 |
 | --- | --- |
 | 扫码添加 | 调起 Scan Kit 默认扫码界面，识别二维码后自动填网址；系统界面已预授权相机，**无需申请相机权限**。支持从相册选图识别 |
-| 手动添加 / 编辑 | 名称 + 网址两个输入框；编辑态里可以再次扫码覆盖网址，也可以删除会话 |
-| 会话列表 | 按最近打开时间倒序；卡片显示名称、域名、最近打开时间、HTTP 标记；支持搜索（名称 / 地址）；长按卡片可编辑、在浏览器打开、删除 |
-| 继续上次 | 首页顶部「继续上次」横幅一键回到上次的页面；设置里可开启「启动时进入上次会话」 |
+| 手动添加 / 编辑 | 名称 + 网址两个输入框；编辑态里可以再次扫码覆盖网址，也可以删除这条收藏 |
+| 收藏列表 | 按最近打开时间倒序；卡片显示名称、域名、最近打开时间、HTTP 标记；支持搜索（名称 / 地址）；长按卡片可编辑、在浏览器打开、删除 |
+| 继续上次 | 首页顶部「上次打开」横幅一键回到上次的页面；设置里可开启「启动时打开上次的页面」 |
 | 内嵌打开 | WebView 打开任意 http/https 地址，开启 JavaScript、DOM Storage、数据库、混合内容，保证会控页的登录态可用 |
 | 网页导航 | 系统返回键优先回退网页历史，退无可退才回列表；顶栏菜单支持刷新、复制链接、在浏览器打开 |
 | 加载失败兜底 | 出错时给出错误码与提示（`-10` 会单独说明可能是明文 http 被系统拦截），可重试或改用系统浏览器打开 |
@@ -55,11 +55,11 @@ makong-harmony/
 │   │   ├── components/
 │   │   │   ├── Brand.ets             # 方印、姓名印、圆形图标按钮、发丝分隔
 │   │   │   └── ConfirmDialog.ets     # 纸面确认框
-│   │   ├── model/SessionItem.ets     # 会话数据模型
+│   │   ├── model/SessionItem.ets     # 收藏数据模型
 │   │   ├── store/SessionStore.ets    # Preferences 持久化
 │   │   ├── entryability/EntryAbility.ets
 │   │   └── pages/
-│   │       ├── Index.ets             # 名帖列表
+│   │       ├── Index.ets             # 收藏列表
 │   │       ├── EditPage.ets          # 新增 / 编辑
 │   │       └── WebViewPage.ets       # 内嵌网页
 │   └── resources/
@@ -74,7 +74,7 @@ makong-harmony/
 
 ## 数据与存储
 
-会话数据存在 Preferences（名称 `makong_sessions`）里，只有一个 JSON 数组：
+收藏数据存在 Preferences（名称 `makong_sessions`）里，只有一个 JSON 数组：
 
 ```
 SessionItem {
@@ -87,7 +87,7 @@ SessionItem {
 }
 ```
 
-另外存 `last_session_id`（上次会话）与 `auto_resume`（是否启动时自动进入）。数据只在本机，卸载应用即丢失。
+另外存 `last_session_id`（上次打开的收藏）与 `auto_resume`（是否启动时自动进入）。数据只在本机，卸载应用即丢失。
 
 ## 运行
 
@@ -178,38 +178,39 @@ http://192.168.1.8:8080/control
 ## 验证情况
 
 - 已在 DevEco Studio 26.0.0.851（API 26 SDK）下用 hvigor 编译通过：`assembleHap` 成功，签名产物 `entry/build/default/outputs/default/entry-default-signed.hap`。
-- 已通过 `hdc install` 安装到真机（4WM0225212003721）并启动，列表、空态、设置面板、新添 / 修订名帖、内嵌网页（含登录态保持）、错误兜底、长按菜单、纸面确认框均已实测，截图见上方「效果图」。
+- 已通过 `hdc install` 安装到真机（4WM0225212003721）并启动，列表、空态、设置面板、添加 / 编辑收藏、内嵌网页（含登录态保持）、错误兜底、长按菜单、纸面确认框均已实测，截图见上方「效果图」。
+- 名词改版后在 HarmonyOS 7.0 模拟器（1316×2832）上整包重装复核：列表、空态、添加 / 编辑、设置、确认框、错误页、长按菜单均与截图一致。
 - 仍待真实会控页确认：内网 http 地址是否被 `-10` 拦截、会控页 WebRTC 的实际表现（见上面的「明文 HTTP」「WebRTC」两节）。
 
 ## 效果图
 
-真机实拍（HarmonyOS 5.0.0 手机，1316×2832，已裁掉系统状态栏）：
+界面截图（HarmonyOS，1316×2832，已裁掉系统状态栏与底部手势条）：
 
 <table>
   <tr>
     <td align="center" width="50%">
       <img src="docs/screenshots/01-list.jpg" width="260" /><br />
-      <sub>名帖列表：续卷卡 + 名帖卡 + 收尾落款</sub>
+      <sub>收藏列表：上次打开卡 + 收藏卡 + 收尾说明</sub>
     </td>
     <td align="center" width="50%">
       <img src="docs/screenshots/02-empty.jpg" width="260" /><br />
-      <sub>空态：山海插画 + 「尚未收卷」</sub>
+      <sub>空态：山海插画 + 「还没有收藏」</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
       <img src="docs/screenshots/03-edit.jpg" width="260" /><br />
-      <sub>新添 / 修订名帖：白卡表单 + 扫一扫</sub>
+      <sub>添加 / 编辑收藏：白卡表单 + 扫一扫</sub>
     </td>
     <td align="center">
       <img src="docs/screenshots/04-webview.jpg" width="260" /><br />
-      <sub>内嵌网页：纸色页头 + WebView 打开会控页</sub>
+      <sub>内嵌网页：纸色页头 + WebView 打开网址（示例页 example.com）</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
       <img src="docs/screenshots/05-settings.jpg" width="260" /><br />
-      <sub>设置面板：启动自动进入上次名帖</sub>
+      <sub>设置面板：启动时打开上次的页面</sub>
     </td>
     <td align="center">
       <img src="docs/screenshots/06-dialog.jpg" width="260" /><br />
@@ -219,16 +220,16 @@ http://192.168.1.8:8080/control
   <tr>
     <td align="center">
       <img src="docs/screenshots/07-error.jpg" width="260" /><br />
-      <sub>加载失败兜底：错误详情 / 重试 / 浏览器打开</sub>
+      <sub>加载失败兜底：错误码 / 重试 / 浏览器打开</sub>
     </td>
     <td align="center">
       <img src="docs/screenshots/08-menu.jpg" width="260" /><br />
-      <sub>长按名帖：修订 / 浏览器打开 / 删除</sub>
+      <sub>长按收藏：编辑 / 在浏览器打开 / 删除</sub>
     </td>
   </tr>
 </table>
 
-图片源文件在 `docs/screenshots/`（由 `scripts/prep_readme_shots.py` 从真机截图裁剪生成）。
+图片源文件在 `.screenshots/`（已 gitignore），由 `scripts/prep_readme_shots.py` 裁剪生成到 `docs/screenshots/`。
 
 
 ## 图标
@@ -238,6 +239,8 @@ http://192.168.1.8:8080/control
 ```powershell
 python scripts/gen_icon.py
 ```
+
+图标口径：玄青底（`#173B3A → #0D2221`）+ 鎏金发丝边 + 居中一枚鎏金「码」（宋体 Black），四周留 7.5% 安全边，系统圆角裁切不会切到字；图案严格左右对称、主体居中，缩到 40px 仍可辨认。字体优先取本机 `Noto Serif SC`，没有则依次退黑体。
 
 界面里的小图标是 Bootstrap Icons 的实心 SVG（`entry/src/main/resources/base/media/ic_*.svg`），统一 `fill="#000000"`，运行时用 `Image.fillColor($r('app.color.…'))` 染色，自动适配浅色 / 深色模式。
 

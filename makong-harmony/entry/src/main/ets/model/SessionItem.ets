@@ -2,7 +2,7 @@ import { util } from '@kit.ArkTS'
 import { UrlUtils } from '../common/UrlUtils'
 
 /**
- * 一条已保存的网页会话。
+ * 一条已保存的网页收藏。
  */
 export interface SessionItem {
   id: string

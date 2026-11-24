@@ -29,7 +29,7 @@ export const SEAL_SHADOW: ShadowOptions = {
 }
 
 // ---- 渐变 ----
-/** 墨色卡片：续卷横幅等深色块 */
+/** 墨色卡片：上次打开横幅等深色块 */
 export const INK_GRADIENT: LinearGradient = {
   angle: 150,
   colors: [['#332B23', 0], ['#1D1814', 1]]

@@ -104,7 +104,7 @@ struct EditPage {
     if (this.isEditing) {
       const item = this.store.get(this.sessionId)
       if (item === undefined) {
-        toast('该名帖已不存在')
+        toast('这条收藏已不存在')
         return
       }
       item.name = name
@@ -114,7 +114,7 @@ struct EditPage {
     } else {
       this.store.upsert(SessionItemFactory.create(name, url))
     }
-    toast('已收入卷中')
+    toast('已保存')
     router.back()
   }
 
@@ -127,7 +127,7 @@ struct EditPage {
       updatedAt: 0,
       lastOpenAt: 0
     }
-    this.confirmTitle = '删除名帖'
+    this.confirmTitle = '删除收藏'
     this.confirmMessage = '确定要删除「' + SessionItemFactory.labelOf(draft) + '」吗？'
     this.pendingAction = () => {
       this.store.remove(this.sessionId)
@@ -149,12 +149,12 @@ struct EditPage {
       })
 
       Column({ space: 3 }) {
-        Text('MAKONG · 名 帖')
+        Text('SHANHAI · 码 控')
           .fontSize(8.5)
           .fontWeight(FontWeight.Medium)
           .letterSpacing(2.4)
           .fontColor($r('app.color.gold'))
-        Text(this.isEditing ? '修订名帖' : '新添名帖')
+        Text(this.isEditing ? '编辑收藏' : '添加收藏')
           .fontSize(22)
           .fontWeight(FontWeight.Bold)
           .letterSpacing(1.5)
@@ -181,7 +181,7 @@ struct EditPage {
   FormCard() {
     Column() {
       Column({ space: 8 }) {
-        this.FieldLabel('名 帖 之 名')
+        this.FieldLabel('名 称')
         TextInput({ text: this.nameInput, placeholder: '例如：会控台 / dsh' })
           .width('100%')
           .height(46)
@@ -207,7 +207,7 @@ struct EditPage {
 
       Column({ space: 8 }) {
         Row() {
-          this.FieldLabel('名 帖 之 址')
+          this.FieldLabel('网 址')
           Blank()
           Row({ space: 4 }) {
             Image($r('app.media.ic_scan'))
@@ -265,11 +265,11 @@ struct EditPage {
         .draggable(false)
         .margin({ top: 1 })
       Column({ space: 4 }) {
-        Text('如何取址')
+        Text('怎么获取网址')
           .fontSize(12.5)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_primary'))
-        Text('在电脑上打开会控页，把地址栏的链接做成二维码扫进来；内网 http 地址也能保存，直接在电脑浏览器里生成二维码即可。')
+        Text('在电脑上打开会控页，把地址栏里的链接生成二维码扫进来即可；内网 http 地址也能保存，用电脑上的二维码工具生成就行。')
           .fontSize(11.5)
           .lineHeight(18)
           .fontColor($r('app.color.text_secondary'))
@@ -294,7 +294,7 @@ struct EditPage {
           this.HintCard()
 
           Button({ type: ButtonType.Capsule, stateEffect: true }) {
-            Text('保 存 名 帖')
+            Text('保 存')
               .fontSize(14.5)
               .fontWeight(FontWeight.Medium)
               .letterSpacing(4)
@@ -310,7 +310,7 @@ struct EditPage {
           })
 
           if (this.isEditing) {
-            Button('删除此帖')
+            Button('删除')
               .type(ButtonType.Capsule)
               .width('100%')
               .height(44)
@@ -322,7 +322,7 @@ struct EditPage {
               })
           }
 
-          Text('名帖只保存在这台机器上')
+          Text('收藏只保存在这台机器上')
             .fontSize(10.5)
             .fontColor($r('app.color.text_tertiary'))
             .width('100%')

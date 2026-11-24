@@ -2,7 +2,7 @@ import { CARD_SHADOW, R_XL } from '../common/Theme'
 
 /**
  * 纸面确认框：替代系统 AlertDialog，保持宣纸 × 朱砂的视觉语言。
- * 用于删除名帖、清空全部等不可逆操作。
+ * 用于删除收藏、清空全部等不可逆操作。
  */
 @CustomDialog
 export struct ConfirmDialog {

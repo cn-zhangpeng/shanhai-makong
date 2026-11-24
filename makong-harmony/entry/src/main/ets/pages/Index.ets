@@ -114,7 +114,7 @@ struct Index {
 
   private timeText(item: SessionItem): string {
     if (item.lastOpenAt <= 0) {
-      return '尚未打开'
+      return '还没打开过'
     }
     const ts = item.lastOpenAt
     const diff = Date.now() - ts
@@ -215,7 +215,7 @@ struct Index {
   }
 
   private confirmDelete(item: SessionItem): void {
-    this.askConfirm('删除名帖', '确定删除「' + SessionItemFactory.labelOf(item) + '」吗？', '删 除', () => {
+    this.askConfirm('删除收藏', '确定删除「' + SessionItemFactory.labelOf(item) + '」吗？', '删 除', () => {
       this.store.remove(item.id)
       this.reload()
       toast('已删除')
@@ -223,7 +223,7 @@ struct Index {
   }
 
   private confirmClearAll(): void {
-    this.askConfirm('清空全部名帖', '将删除本机保存的所有名帖，且无法恢复。', '清 空', () => {
+    this.askConfirm('清空全部收藏', '将删除本机保存的全部收藏，且无法恢复。', '清 空', () => {
       this.store.clear()
       this.reload()
       this.showSettings = false
@@ -234,7 +234,7 @@ struct Index {
   @Builder
   CardMenu(item: SessionItem) {
     Menu() {
-      MenuItem({ content: '修订名帖' })
+      MenuItem({ content: '编辑' })
         .onClick(() => {
           this.editSession(item)
         })
@@ -276,6 +276,10 @@ struct Index {
               .fontWeight(FontWeight.Bold)
               .letterSpacing(2)
               .fontColor($r('app.color.text_primary'))
+            Text('会控页面收藏夹')
+              .fontSize(11)
+              .letterSpacing(0.5)
+              .fontColor($r('app.color.text_tertiary'))
           }
           .layoutWeight(1)
           .alignItems(HorizontalAlign.Start)
@@ -320,7 +324,7 @@ struct Index {
   @Builder
   SearchBar() {
     Row() {
-      Search({ value: this.keyword, placeholder: '搜名帖、地址' })
+      Search({ value: this.keyword, placeholder: '搜索名称或网址' })
         .width('100%')
         .height(44)
         .backgroundColor($r('app.color.surface'))
@@ -342,7 +346,7 @@ struct Index {
   ResumeCard() {
     Row({ space: 12 }) {
       Column({ space: 4 }) {
-        Text('续 卷')
+        Text('上次打开')
           .fontSize(9)
           .letterSpacing(3)
           .fontColor($r('app.color.gold'))
@@ -391,13 +395,13 @@ struct Index {
         .height(12)
         .strokeWidth(3)
         .color($r('app.color.brand'))
-      Text('名 帖')
+      Text('我的收藏')
         .fontSize(12)
         .fontWeight(FontWeight.Medium)
-        .letterSpacing(2)
+        .letterSpacing(1.5)
         .fontColor($r('app.color.text_secondary'))
       Blank()
-      Text('共 ' + this.sessions.length + ' 张')
+      Text('共 ' + this.sessions.length + ' 条')
         .fontSize(10.5)
         .fontColor($r('app.color.text_tertiary'))
     }
@@ -411,7 +415,7 @@ struct Index {
       Divider()
         .width(22)
         .color($r('app.color.border'))
-      Text('山海有信 · 名帖在此')
+      Text('收藏只保存在本机')
         .fontSize(9.5)
         .letterSpacing(2)
         .fontColor($r('app.color.text_tertiary'))
@@ -495,14 +499,14 @@ struct Index {
           .margin({ left: 152, top: 30 })
       }
 
-      Text('尚未收卷')
+      Text('还没有收藏')
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .letterSpacing(3)
+        .letterSpacing(2)
         .fontColor($r('app.color.text_primary'))
         .margin({ top: 10 })
 
-      Text('扫会控页的二维码，或点右上「＋」填一个网址，\n收藏后即可一键入卷。')
+      Text('扫会控页上的二维码，或点右上角「＋」\n填一个网址，收藏后点开就能用。')
         .fontSize(12)
         .lineHeight(20)
         .textAlign(TextAlign.Center)
@@ -510,7 +514,7 @@ struct Index {
         .margin({ top: 8 })
 
       Button({ type: ButtonType.Capsule, stateEffect: true }) {
-        Text('扫码入卷')
+        Text('扫码添加')
           .fontSize(14)
           .fontWeight(FontWeight.Medium)
           .letterSpacing(1)
@@ -541,12 +545,12 @@ struct Index {
         .opacity(0.5)
         .draggable(false)
         .margin({ bottom: 6 })
-      Text('未见此帖')
+      Text('没有找到')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .letterSpacing(2)
         .fontColor($r('app.color.text_primary'))
-      Text('换个关键词，或扫一张新的码')
+      Text('换个关键词，或扫码添加新的收藏')
         .fontSize(12)
         .fontColor($r('app.color.text_tertiary'))
     }
@@ -565,7 +569,7 @@ struct Index {
           .height(18)
           .fillColor('#FFF8EF')
           .draggable(false)
-        Text('扫码入卷')
+        Text('扫码添加')
           .fontSize(13.5)
           .fontWeight(FontWeight.Medium)
           .letterSpacing(1)
@@ -586,7 +590,7 @@ struct Index {
   SettingsSheet() {
     Column() {
       Column({ space: 4 }) {
-        Text('SETTINGS · 码控')
+        Text('SHANHAI · 设 置')
           .fontSize(8.5)
           .letterSpacing(2.4)
           .fontColor($r('app.color.gold'))
@@ -603,10 +607,10 @@ struct Index {
 
       Row({ space: 12 }) {
         Column({ space: 3 }) {
-          Text('启动时进入上次名帖')
+          Text('启动时打开上次的页面')
             .fontSize(15)
             .fontColor($r('app.color.text_primary'))
-          Text('打开应用后自动恢复上一次访问的页面')
+          Text('打开应用后直接进入上次访问的页面')
             .fontSize(10.5)
             .fontColor($r('app.color.text_tertiary'))
         }
@@ -627,7 +631,7 @@ struct Index {
 
       Row() {
         Column({ space: 3 }) {
-          Text('清空全部名帖')
+          Text('清空全部收藏')
             .fontSize(15)
             .fontColor($r('app.color.danger'))
           Text('删除后无法恢复')
@@ -647,7 +651,7 @@ struct Index {
         this.confirmClearAll()
       })
 
-      Text('名帖只存在这台机器上 · 长按可修订或删除')
+      Text('收藏只保存在本机 · 长按可编辑或删除')
         .fontSize(10.5)
         .fontColor($r('app.color.text_tertiary'))
         .width('100%')
@@ -679,11 +683,13 @@ struct Index {
                   this.ResumeCard()
                 }
               }
+              // key 带上时间戳：名称、打开时间变化时让卡片真正重建，
+              // 否则 ForEach 只认 id，从网页页返回后列表仍显示旧文案。
               ForEach(this.filtered(), (item: SessionItem) => {
                 ListItem() {
                   this.SessionCard(item)
                 }
-              }, (item: SessionItem) => item.id)
+              }, (item: SessionItem) => item.id + '-' + item.updatedAt + '-' + item.lastOpenAt)
               if (!this.hasKeyword()) {
                 ListItem() {
                   this.ListFoot()

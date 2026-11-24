@@ -8,19 +8,19 @@ DST = ROOT / "docs" / "screenshots"
 DST.mkdir(parents=True, exist_ok=True)
 
 SHOTS = [
-    ("v5-list.jpeg", "01-list.jpg"),
-    ("v3-empty2.jpeg", "02-empty.jpg"),
-    ("v4-edit.jpeg", "03-edit.jpg"),
-    ("v2-web.jpeg", "04-webview.jpg"),
-    ("v5-settings.jpeg", "05-settings.jpg"),
-    ("v3-dialog.jpeg", "06-dialog.jpg"),
-    ("v2-error.jpeg", "07-error.jpg"),
-    ("v4-menu.jpeg", "08-menu.jpg"),
+    ("list.jpeg", "01-list.jpg"),
+    ("empty.jpeg", "02-empty.jpg"),
+    ("edit.jpeg", "03-edit.jpg"),
+    ("web.jpeg", "04-webview.jpg"),
+    ("settings.jpeg", "05-settings.jpg"),
+    ("dialog.jpeg", "06-dialog.jpg"),
+    ("error.jpeg", "07-error.jpg"),
+    ("menu.jpeg", "08-menu.jpg"),
 ]
 
-# 去掉顶部状态栏与底部手势条，只保留应用画面
-CROP_TOP = 132
-CROP_BOTTOM = 2788
+# 去掉系统状态栏与底部手势条，只保留应用画面（1316×2832 → 1316×2597）
+CROP_TOP = 137
+CROP_BOTTOM = 2734
 TARGET_WIDTH = 900
 
 for src_name, dst_name in SHOTS:
