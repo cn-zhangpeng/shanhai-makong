@@ -2,6 +2,7 @@ import { router, promptAction } from '@kit.ArkUI'
 import { BusinessError, pasteboard } from '@kit.BasicServicesKit'
 import { Want } from '@kit.AbilityKit'
 import { webview } from '@kit.ArkWeb'
+import { connection } from '@kit.NetworkKit'
 import { AppContext } from '../common/AppContext'
 import { WebRouteParams } from '../common/Routes'
 import { PAPER_GRADIENT, R_MD } from '../common/Theme'
@@ -65,6 +66,23 @@ struct WebViewPage {
 
   private subtitleText(): string {
     return UrlUtils.hostOf(this.currentUrl)
+  }
+
+  // 网页用 navigator.onLine 判断在线状态；控制器绑定后先按系统真实网络状态同步一次，
+  // 否则页面首帧会认为设备离线，页面内的长连接组件会显示「连接异常」。
+  private syncNetworkAvailable(): void {
+    let available = true
+    try {
+      available = connection.hasDefaultNetSync()
+    } catch (error) {
+      // 读取不到网络状态时按在线处理，避免把可达的网络误判成断网。
+      available = true
+    }
+    try {
+      this.controller.setNetworkAvailable(available)
+    } catch (error) {
+      // 控制器尚未绑定，绑定后的回调会再次同步。
+    }
   }
 
   private handlePermission(event: OnPermissionRequestEvent): void {
@@ -329,6 +347,9 @@ struct WebViewPage {
     Web({ src: this.targetUrl, controller: this.controller })
       .width('100%')
       .height('100%')
+      .onControllerAttached(() => {
+        this.syncNetworkAvailable()
+      })
       .javaScriptAccess(true)
       .fileAccess(false)
       .domStorageAccess(true)
