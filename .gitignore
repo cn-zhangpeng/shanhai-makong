@@ -33,6 +33,15 @@ local.properties
 *.log
 .DS_Store
 Thumbs.db
+.downloads/
+.nsh-docs/
+
+# Native Shell / Android 构建产物
+.nsh/
+makong-mobile/.nsh/
+makong-mobile/target/
+makong-mobile/dist/
+makong-mobile/.shots/
 
 # C/C++ 编译中间产物
 .cxx/
@@ -42,3 +51,4 @@ Thumbs.db
 .clang-tidy
 .appanalyzer/
 .test/
+makong-harmony/.shots/

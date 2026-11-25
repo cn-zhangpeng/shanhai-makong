@@ -1,0 +1,51 @@
+{
+  "name": "码控",
+  "id": "com.shanhai.makong",
+  "version": "1.0.0",
+  "build": 1,
+  "appearance": "light",
+  "icon": "assets/icon.png",
+  "statusBar": { "foreground": "dark" },
+  "theme": {
+    "cssVars": {
+      "theme": { "radius": "14px" },
+      "light": {
+        "background": "#F7F4EE",
+        "foreground": "#221E19",
+        "card": "#FFFFFF",
+        "card-foreground": "#221E19",
+        "popover": "#FFFFFF",
+        "popover-foreground": "#221E19",
+        "primary": "#A83E2C",
+        "primary-foreground": "#FFF8EF",
+        "secondary": "#F1EDE5",
+        "secondary-foreground": "#5C5449",
+        "muted": "#F1EDE5",
+        "muted-foreground": "#8F8677",
+        "accent": "#F8EAE5",
+        "accent-foreground": "#A83E2C",
+        "destructive": "#C23A32",
+        "destructive-foreground": "#FFF8EF",
+        "border": "#E6DDCD",
+        "input": "#EFE8DB",
+        "ring": "#A83E2C"
+      }
+    }
+  },
+  "capabilities": {
+    "network": { "hosts": ["*"] },
+    "webview": { "hosts": ["*"], "media": ["camera", "microphone"] },
+    "clipboard": true,
+    "picker": true,
+    "openUrl": true,
+    "statusBar": true
+  },
+  "android": {
+    "targetSdk": 35,
+    "usesCleartextTraffic": true,
+    "permissions": [
+      "android.permission.CAMERA",
+      "android.permission.RECORD_AUDIO"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Mirror to Gitee](https://github.com/cn-zhangpeng/shanhai-makong/actions/workflows/mirror.yml/badge.svg)](https://github.com/cn-zhangpeng/shanhai-makong/actions/workflows/mirror.yml)
 
-「码控」：山海系列 · 鸿蒙版会控页面收藏夹。
+「码控」：山海系列 · 鸿蒙 / Android 双端会控页面收藏夹。
 
 扫一扫会控页面上的二维码，把地址存成本地收藏，点开直接用内嵌 WebView 打开——不用每次手输网址。
 
@@ -11,7 +11,8 @@
 
 | 目录 | 说明 |
 | --- | --- |
-| [`makong-harmony/`](makong-harmony/README.md) | HarmonyOS 客户端（Stage 模型 + ArkTS + ArkUI），当前唯一实现 |
+| [`makong-harmony/`](makong-harmony/README.md) | HarmonyOS 客户端（Stage 模型 + ArkTS + ArkUI） |
+| [`makong-mobile/`](makong-mobile/README.md) | Android 客户端（[Native Shell](https://nsh.dev) 0.7 + TSX，原生 View 渲染），构建命令与截图见其 README |
 
 ## 功能一览
 
@@ -47,6 +48,41 @@
 更多效果图（空态、设置、确认框、错误兜底、长按菜单）见 [`makong-harmony/README.md`](makong-harmony/README.md#效果图)。
 
 设计说明、构建/安装步骤同样在该 README 中。
+
+## Android 版
+
+`makong-mobile/` 用 [Native Shell（nsh）](https://nsh.dev) 的 TSX 实现同一套功能与同一套山海设计，由 Android 原生 View 渲染：
+
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="makong-mobile/docs/screenshots/01-list.jpg" width="190" /><br />
+      <sub>收藏列表</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="makong-mobile/docs/screenshots/04-webview.jpg" width="190" /><br />
+      <sub>内嵌网页</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="makong-mobile/docs/screenshots/09-scanner.jpg" width="190" /><br />
+      <sub>扫一扫</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="makong-mobile/docs/screenshots/02-empty.jpg" width="190" /><br />
+      <sub>空态</sub>
+    </td>
+  </tr>
+</table>
+
+```powershell
+$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
+nsh component add android
+nsh run makong-mobile --target android          # 开发运行
+nsh package makong-mobile --target android --abi arm64-v8a,armeabi-v7a,x86_64 -o makong-mobile\dist
+adb install -r makong-mobile\dist\makong-1.0.0.apk
+```
+
+功能对齐、扫码实现、权限与截图见 [`makong-mobile/README.md`](makong-mobile/README.md)。
 
 ## 快速开始
 
