@@ -1,10 +1,11 @@
 import { BusinessError } from '@kit.BasicServicesKit'
 import { preferences } from '@kit.ArkData'
 import { AppContext } from '../common/AppContext'
-import { SessionItem } from '../model/SessionItem'
+import { GroupItem, GroupItemFactory, SessionItem } from '../model/SessionItem'
 
 const STORE_NAME: string = 'makong_sessions'
 const KEY_ITEMS: string = 'items'
+const KEY_GROUPS: string = 'groups'
 const KEY_LAST_ID: string = 'last_session_id'
 const KEY_AUTO_RESUME: string = 'auto_resume'
 
@@ -15,7 +16,9 @@ export class SessionStore {
   private static instance: SessionStore | undefined = undefined
   private prefs: preferences.Preferences | undefined = undefined
   private items: SessionItem[] = []
+  private groups: GroupItem[] = []
   private loaded: boolean = false
+  private groupsLoaded: boolean = false
 
   static getInstance(): SessionStore {
     if (SessionStore.instance === undefined) {
@@ -48,6 +51,29 @@ export class SessionStore {
     }
   }
 
+  private loadGroups(): void {
+    if (this.groupsLoaded) {
+      return
+    }
+    this.groupsLoaded = true
+    try {
+      const raw = this.getPreferences().getSync(KEY_GROUPS, '[]') as string
+      const parsed = JSON.parse(raw) as GroupItem[]
+      if (parsed !== null && parsed !== undefined) {
+        const valid: GroupItem[] = []
+        for (const group of parsed) {
+          if (group !== null && group !== undefined && typeof group.id === 'string' && group.name.length > 0) {
+            valid.push(group)
+          }
+        }
+        this.groups = valid
+      }
+    } catch (error) {
+      this.groups = []
+      console.error('makong: 读取本地分组失败')
+    }
+  }
+
   private sortItems(): void {
     this.items.sort((left: SessionItem, right: SessionItem) => {
       const leftTime = left.lastOpenAt > 0 ? left.lastOpenAt : left.updatedAt
@@ -62,9 +88,15 @@ export class SessionStore {
     this.flush(prefs)
   }
 
+  private persistGroups(): void {
+    const prefs = this.getPreferences()
+    prefs.putSync(KEY_GROUPS, JSON.stringify(this.groups))
+    this.flush(prefs)
+  }
+
   private flush(prefs: preferences.Preferences): void {
     prefs.flush().catch((error: BusinessError) => {
-      console.error('makong: 写入本地会话失败, code=' + error.code)
+      console.error('makong: 写入本地数据失败, code=' + error.code)
     })
   }
 
@@ -161,5 +193,92 @@ export class SessionStore {
     const prefs = this.getPreferences()
     prefs.putSync(KEY_AUTO_RESUME, value)
     this.flush(prefs)
+  }
+
+  /** 全部分组，按 order 升序。 */
+  getGroups(): GroupItem[] {
+    this.loadGroups()
+    return this.groups.slice().sort((left: GroupItem, right: GroupItem) => left.order - right.order)
+  }
+
+  getGroup(id: string): GroupItem | undefined {
+    this.loadGroups()
+    for (const group of this.groups) {
+      if (group.id === id) {
+        return group
+      }
+    }
+    return undefined
+  }
+
+  /** 新建分组；名称为空或重复时返回 undefined。 */
+  addGroup(name: string): GroupItem | undefined {
+    this.loadGroups()
+    const trimmed = name.trim()
+    if (trimmed.length === 0) {
+      return undefined
+    }
+    for (const group of this.groups) {
+      if (group.name === trimmed) {
+        return undefined
+      }
+    }
+    let maxOrder = 0
+    for (const group of this.groups) {
+      if (group.order > maxOrder) {
+        maxOrder = group.order
+      }
+    }
+    const created = GroupItemFactory.create(trimmed, maxOrder + 1)
+    this.groups.push(created)
+    this.persistGroups()
+    return created
+  }
+
+  /** 重命名分组；名称为空或与其他分组重名时返回 false。 */
+  renameGroup(id: string, name: string): boolean {
+    this.loadGroups()
+    const trimmed = name.trim()
+    if (trimmed.length === 0) {
+      return false
+    }
+    for (const group of this.groups) {
+      if (group.id !== id && group.name === trimmed) {
+        return false
+      }
+    }
+    for (const group of this.groups) {
+      if (group.id === id) {
+        group.name = trimmed
+        this.persistGroups()
+        return true
+      }
+    }
+    return false
+  }
+
+  /** 删除分组，组内收藏回到「未分组」。 */
+  removeGroup(id: string): void {
+    this.loadGroups()
+    const next: GroupItem[] = []
+    for (const group of this.groups) {
+      if (group.id !== id) {
+        next.push(group)
+      }
+    }
+    this.groups = next
+    this.persistGroups()
+
+    this.load()
+    let changed = false
+    for (const item of this.items) {
+      if (item.groupId === id) {
+        item.groupId = ''
+        changed = true
+      }
+    }
+    if (changed) {
+      this.persist()
+    }
   }
 }

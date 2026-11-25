@@ -12,4 +12,6 @@ export interface EditRouteParams {
   id?: string
   url?: string
   name?: string
+  /** 新增时的默认分组 id；空字符串或未设置表示未分组。 */
+  groupId?: string
 }

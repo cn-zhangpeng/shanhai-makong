@@ -18,8 +18,9 @@ import {
 } from '../common/Theme'
 import { UrlUtils } from '../common/UrlUtils'
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import { GroupNameDialog } from '../components/GroupNameDialog'
 import { NameSeal, RoundIconButton, SealMark } from '../components/Brand'
-import { SessionItem, SessionItemFactory } from '../model/SessionItem'
+import { GroupItem, SessionItem, SessionItemFactory } from '../model/SessionItem'
 import { SessionStore } from '../store/SessionStore'
 
 function toast(message: string): void {
@@ -30,6 +31,8 @@ function toast(message: string): void {
 @Component
 struct Index {
   @State sessions: SessionItem[] = []
+  @State groups: GroupItem[] = []
+  @State activeGroup: string = 'all'
   @State keyword: string = ''
   @State autoResume: boolean = false
   @State showSettings: boolean = false
@@ -37,10 +40,26 @@ struct Index {
   @State confirmTitle: string = ''
   @State confirmMessage: string = ''
   @State confirmActionText: string = '删 除'
+  @State groupDialogTitle: string = '新建分组'
+  @State groupDialogInitial: string = ''
   private store: SessionStore = SessionStore.getInstance()
   private autoResumeDone: boolean = false
+  private pendingGroupName: (name: string) => void = () => {
+  }
   private pendingAction: () => void = () => {
   }
+  private groupNameCtrl: CustomDialogController = new CustomDialogController({
+    builder: GroupNameDialog({
+      title: this.groupDialogTitle,
+      initial: this.groupDialogInitial,
+      onSubmit: (name: string) => {
+        this.pendingGroupName(name)
+      }
+    }),
+    autoCancel: true,
+    customStyle: true,
+    alignment: DialogAlignment.Center
+  })
   private confirmCtrl: CustomDialogController = new CustomDialogController({
     builder: ConfirmDialog({
       title: this.confirmTitle,
@@ -76,7 +95,31 @@ struct Index {
 
   private reload(): void {
     this.sessions = this.store.getAll()
+    this.groups = this.store.getGroups()
     this.resumeItem = this.store.getLastSession()
+    if (this.activeGroup !== 'all' && this.activeGroup !== 'ungrouped' &&
+      this.store.getGroup(this.activeGroup) === undefined) {
+      this.activeGroup = 'all'
+    }
+  }
+
+  private inActiveGroup(item: SessionItem): boolean {
+    if (this.activeGroup === 'all') {
+      return true
+    }
+    if (this.activeGroup === 'ungrouped') {
+      return item.groupId === undefined || item.groupId.length === 0
+    }
+    return item.groupId === this.activeGroup
+  }
+
+  private groupLabelOf(item: SessionItem): string {
+    const id = item.groupId
+    if (id === undefined || id.length === 0) {
+      return ''
+    }
+    const group = this.store.getGroup(id)
+    return group !== undefined ? group.name : ''
   }
 
   private hasKeyword(): boolean {
@@ -85,11 +128,15 @@ struct Index {
 
   private filtered(): SessionItem[] {
     const kw = this.keyword.trim().toLowerCase()
-    if (kw.length === 0) {
-      return this.sessions
-    }
     const result: SessionItem[] = []
     for (const item of this.sessions) {
+      if (!this.inActiveGroup(item)) {
+        continue
+      }
+      if (kw.length === 0) {
+        result.push(item)
+        continue
+      }
       const label = SessionItemFactory.labelOf(item).toLowerCase()
       if (label.includes(kw) || item.url.toLowerCase().includes(kw)) {
         result.push(item)
@@ -162,6 +209,9 @@ struct Index {
 
   private createSession(): void {
     const params: EditRouteParams = {}
+    if (this.activeGroup !== 'all' && this.activeGroup !== 'ungrouped') {
+      params.groupId = this.activeGroup
+    }
     this.gotoEdit(params)
   }
 
@@ -184,6 +234,9 @@ struct Index {
           return
         }
         const params: EditRouteParams = { url: url, name: UrlUtils.hostOf(url) }
+        if (this.activeGroup !== 'all' && this.activeGroup !== 'ungrouped') {
+          params.groupId = this.activeGroup
+        }
         this.gotoEdit(params)
       })
       .catch((error: BusinessError) => {
@@ -229,6 +282,132 @@ struct Index {
       this.showSettings = false
       toast('已清空')
     })
+  }
+
+  private openCreateGroup(): void {
+    this.groupDialogTitle = '新建分组'
+    this.groupDialogInitial = ''
+    this.pendingGroupName = (name: string) => {
+      const created = this.store.addGroup(name)
+      if (created === undefined) {
+        toast('分组已存在，或名称不能为空')
+        return
+      }
+      this.reload()
+      this.activeGroup = created.id
+      toast('已创建分组')
+    }
+    this.groupNameCtrl.open()
+  }
+
+  private openRenameGroup(group: GroupItem): void {
+    this.groupDialogTitle = '重命名分组'
+    this.groupDialogInitial = group.name
+    this.pendingGroupName = (name: string) => {
+      if (!this.store.renameGroup(group.id, name)) {
+        toast('分组已存在，或名称不能为空')
+        return
+      }
+      this.reload()
+      toast('已重命名')
+    }
+    this.groupNameCtrl.open()
+  }
+
+  private askDeleteGroup(group: GroupItem): void {
+    this.askConfirm('删除分组', '删除「' + group.name + '」后，组内收藏会移到「未分组」。', '删 除', () => {
+      this.store.removeGroup(group.id)
+      if (this.activeGroup === group.id) {
+        this.activeGroup = 'all'
+      }
+      this.reload()
+      toast('已删除分组')
+    })
+  }
+
+  @Builder
+  GroupChip(label: string, key: string, onTap: () => void) {
+    Row() {
+      Text(label)
+        .fontSize(12.5)
+        .fontWeight(this.activeGroup === key ? FontWeight.Medium : FontWeight.Normal)
+        .fontColor(this.activeGroup === key ? $r('app.color.brand') : $r('app.color.text_secondary'))
+        .maxLines(1)
+    }
+    .height(32)
+    .padding({ left: 14, right: 14 })
+    .borderRadius(16)
+    .backgroundColor(this.activeGroup === key ? $r('app.color.brand_soft') : $r('app.color.surface'))
+    .border({
+      width: 1,
+      color: this.activeGroup === key ? $r('app.color.brand_line') : $r('app.color.border')
+    })
+    .onClick(onTap)
+  }
+
+  @Builder
+  GroupChipWithMenu(group: GroupItem) {
+    Row() {
+      Text(group.name)
+        .fontSize(12.5)
+        .fontWeight(this.activeGroup === group.id ? FontWeight.Medium : FontWeight.Normal)
+        .fontColor(this.activeGroup === group.id ? $r('app.color.brand') : $r('app.color.text_secondary'))
+        .maxLines(1)
+    }
+    .height(32)
+    .padding({ left: 14, right: 14 })
+    .borderRadius(16)
+    .backgroundColor(this.activeGroup === group.id ? $r('app.color.brand_soft') : $r('app.color.surface'))
+    .border({
+      width: 1,
+      color: this.activeGroup === group.id ? $r('app.color.brand_line') : $r('app.color.border')
+    })
+    .onClick(() => {
+      this.activeGroup = group.id
+    })
+    .bindContextMenu(this.GroupMenu(group), ResponseType.LongPress)
+  }
+
+  @Builder
+  GroupMenu(group: GroupItem) {
+    Menu() {
+      MenuItem({ content: '重命名' })
+        .onClick(() => {
+          this.openRenameGroup(group)
+        })
+      MenuItem({ content: '删除分组' })
+        .contentFontColor($r('app.color.danger'))
+        .onClick(() => {
+          this.askDeleteGroup(group)
+        })
+    }
+  }
+
+  @Builder
+  GroupChips() {
+    Scroll() {
+      Row({ space: 8 }) {
+        this.GroupChip('全部', 'all', () => {
+          this.activeGroup = 'all'
+        })
+        this.GroupChip('未分组', 'ungrouped', () => {
+          this.activeGroup = 'ungrouped'
+        })
+        ForEach(this.groups, (group: GroupItem) => {
+          this.GroupChipWithMenu(group)
+        }, (group: GroupItem) => group.id + '-' + group.name)
+        this.GroupChip('＋ 分组', '__new__', () => {
+          this.openCreateGroup()
+        })
+      }
+      .padding({ left: PAD, right: PAD })
+    }
+    .scrollable(ScrollDirection.Horizontal)
+    .scrollBar(BarState.Off)
+    .align(Alignment.Start)
+    .width('100%')
+    .height(44)
+    .padding({ top: 2, bottom: 8 })
   }
 
   @Builder
@@ -315,6 +494,7 @@ struct Index {
         .padding({ left: 26, right: 26, top: 14, bottom: 2 })
 
         this.SearchBar()
+        this.GroupChips()
       }
       .width('100%')
     }
@@ -401,7 +581,7 @@ struct Index {
         .letterSpacing(1.5)
         .fontColor($r('app.color.text_secondary'))
       Blank()
-      Text('共 ' + this.sessions.length + ' 条')
+      Text('共 ' + this.filtered().length + ' 条')
         .fontSize(10.5)
         .fontColor($r('app.color.text_tertiary'))
     }
@@ -456,6 +636,13 @@ struct Index {
               .border({ width: 1, color: $r('app.color.brand_line') })
               .borderRadius(4)
               .padding({ left: 4, right: 4, top: 1, bottom: 1 })
+          }
+          if (this.groupLabelOf(item).length > 0) {
+            Text(this.groupLabelOf(item))
+              .fontSize(9)
+              .fontColor($r('app.color.gold'))
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
         }
       }
@@ -545,12 +732,12 @@ struct Index {
         .opacity(0.5)
         .draggable(false)
         .margin({ bottom: 6 })
-      Text('没有找到')
+      Text(this.hasKeyword() ? '没有找到' : '这个分组还没有收藏')
         .fontSize(16)
         .fontWeight(FontWeight.Medium)
         .letterSpacing(2)
         .fontColor($r('app.color.text_primary'))
-      Text('换个关键词，或扫码添加新的收藏')
+      Text(this.hasKeyword() ? '换个关键词，或扫码添加新的收藏' : '扫码添加，或到编辑页把这组收藏选进来')
         .fontSize(12)
         .fontColor($r('app.color.text_tertiary'))
     }
@@ -678,7 +865,7 @@ struct Index {
           Column({ space: CARD_GAP }) {
             this.SectionHeader()
             List({ space: CARD_GAP }) {
-              if (!this.hasKeyword() && this.resumeLabel().length > 0) {
+              if (!this.hasKeyword() && this.activeGroup === 'all' && this.resumeLabel().length > 0) {
                 ListItem() {
                   this.ResumeCard()
                 }
@@ -689,7 +876,7 @@ struct Index {
                 ListItem() {
                   this.SessionCard(item)
                 }
-              }, (item: SessionItem) => item.id + '-' + item.updatedAt + '-' + item.lastOpenAt)
+              }, (item: SessionItem) => item.id + '-' + item.updatedAt + '-' + item.lastOpenAt + '-' + this.groupLabelOf(item))
               if (!this.hasKeyword()) {
                 ListItem() {
                   this.ListFoot()

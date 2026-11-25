@@ -31,6 +31,7 @@
 | 扫码添加 | 调起 Scan Kit 默认扫码界面，识别二维码后自动填网址；系统界面已预授权相机，**无需申请相机权限**。支持从相册选图识别 |
 | 手动添加 / 编辑 | 名称 + 网址两个输入框；编辑态里可以再次扫码覆盖网址，也可以删除这条收藏 |
 | 收藏列表 | 按最近打开时间倒序；卡片显示名称、域名、最近打开时间、HTTP 标记；支持搜索（名称 / 地址）；长按卡片可编辑、在浏览器打开、删除 |
+| 分组 | 搜索栏下按「全部 / 未分组 / 自定义分组」筛选；卡片上显示所属分组；编辑页可为收藏选组，也可当场新建；长按分组可重命名、删除（组内收藏回到未分组） |
 | 继续上次 | 首页顶部「上次打开」横幅一键回到上次的页面；设置里可开启「启动时打开上次的页面」 |
 | 内嵌打开 | WebView 打开任意 http/https 地址，开启 JavaScript、DOM Storage、数据库、混合内容，保证会控页的登录态可用 |
 | 网页导航 | 系统返回键优先回退网页历史，退无可退才回列表；顶栏菜单支持刷新、复制链接、在浏览器打开 |
@@ -54,8 +55,9 @@ makong-harmony/
 │   │   │   └── UrlUtils.ets          # 网址规范化 / 域名提取 / 协议判断
 │   │   ├── components/
 │   │   │   ├── Brand.ets             # 方印、姓名印、圆形图标按钮、发丝分隔
-│   │   │   └── ConfirmDialog.ets     # 纸面确认框
-│   │   ├── model/SessionItem.ets     # 收藏数据模型
+│   │   │   ├── ConfirmDialog.ets     # 纸面确认框
+│   │   │   └── GroupNameDialog.ets   # 新建 / 重命名分组的纸面输入框
+│   │   ├── model/SessionItem.ets     # 收藏 / 分组数据模型
 │   │   ├── store/SessionStore.ets    # Preferences 持久化
 │   │   ├── entryability/EntryAbility.ets
 │   │   └── pages/
@@ -84,10 +86,21 @@ SessionItem {
   createdAt: number   // 创建时间戳
   updatedAt: number   // 修改时间戳
   lastOpenAt: number  // 最近打开时间，用于排序和「继续上次」
+  groupId?: string    // 所属分组；空 / 缺省表示「未分组」，兼容旧数据
 }
 ```
 
-另外存 `last_session_id`（上次打开的收藏）与 `auto_resume`（是否启动时自动进入）。数据只在本机，卸载应用即丢失。
+分组存在同一个 Preferences 的 `groups` 键里：
+
+```
+GroupItem {
+  id: string          // UUID
+  name: string        // 分组名（不可重名）
+  order: number       // 显示顺序，新建时递增
+}
+```
+
+另外存 `last_session_id`（上次打开的收藏）与 `auto_resume`（是否启动时自动进入）。删除分组时，组内收藏会写回 `groupId: ''` 归入「未分组」；「清空全部收藏」只清收藏，保留分组。数据只在本机，卸载应用即丢失。
 
 ## 运行
 
@@ -180,6 +193,10 @@ http://192.168.1.8:8080/control
 - 已在 DevEco Studio 26.0.0.851（API 26 SDK）下用 hvigor 编译通过：`assembleHap` 成功，签名产物 `entry/build/default/outputs/default/entry-default-signed.hap`。
 - 已通过 `hdc install` 安装到真机（4WM0225212003721）并启动，列表、空态、设置面板、添加 / 编辑收藏、内嵌网页（含登录态保持）、错误兜底、长按菜单、纸面确认框均已实测，截图见上方「效果图」。
 - 名词改版后在 HarmonyOS 7.0 模拟器（1316×2832）上整包重装复核：列表、空态、添加 / 编辑、设置、确认框、错误页、长按菜单均与截图一致。
+- 分组功能（2026-11）在 DevEco Studio（API 26 SDK）下用 hvigor 编译通过（`assembleHap`，当前仓库未配置签名，产物为 `entry-default-unsigned.hap`）。
+- 2026-11-26 在 HarmonyOS 7.0 模拟器（1280×2832，API 26）上安装该 unsigned HAP（模拟器接受未签名调试包）做了整轮回归，均通过：新增 / 编辑 / 删除收藏、分组新建 / 重命名 / 删除、分组筛选、搜索与空态、编辑页选组与「新建」、设置开关、清空全部收藏、启动自动进入上次页面、网页错误兜底、顶栏刷新 / 复制链接 / 用浏览器打开、扫码入口拉起、杀进程重启后的数据持久化。
+- 回归中发现并修复两个状态刷新问题：①「全部 / 未分组」chip 的选中高亮不随筛选刷新（改为 builder 内读 `activeGroup`）；② 分组改名后列表卡片上的分组标签仍显示旧名（列表行 key 加入分组名，改名即重建）。
+- 模拟器无外网，网页「成功加载」路径未验证；`-106 ERR_INTERNET_DISCONNECTED` 的错误页、重试与浏览器兜底已验证。扫码只验证到系统扫码界面（安全访问相机提示 + 图库入口），模拟器无摄像头，未做实际识别。
 - 仍待真实会控页确认：内网 http 地址是否被 `-10` 拦截、会控页 WebRTC 的实际表现（见上面的「明文 HTTP」「WebRTC」两节）。
 
 ## 效果图
